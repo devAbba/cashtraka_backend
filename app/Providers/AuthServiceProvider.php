@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -28,5 +31,8 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         //
+        Gate::define('delete-transaction', function (User $user, Transaction $transaction) {
+            return $user->id === $transaction->user_id;
+        });
     }
 }
