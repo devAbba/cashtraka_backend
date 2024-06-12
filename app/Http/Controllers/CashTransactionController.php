@@ -2,23 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 class CashTransactionController extends Controller
 {
-    //
-    public function index(Request $request): JsonResponse
+    /**
+     * Gets list of user transactions
+     *
+     * @param Request $request
+     * @return ResourceCollection
+     */
+    public function index(Request $request)
     {
         $page_size = $request->query('page_size') ?? 6;
-        $transactions = Transaction::latest()->paginate($page_size);
-        return response()->json($transactions);
+        $transactions = Transaction::query()->paginate($page_size);
+
+        return TransactionResource::collection($transactions);
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * Creates a new transaction in DB
+     *
+     * @param Request $request
+     * @return ResourceCollection
+     */
+    public function store(Request $request)
     {
         $form_fields = $request->validate([
             'description' => 'required',
@@ -27,12 +40,12 @@ class CashTransactionController extends Controller
 
         $form_fields['user_id'] = auth()->id();
 
-        $res = Transaction::create($form_fields);
+        $created = Transaction::create($form_fields);
 
-        return response()->json($res);
+        return TransactionResource::collection($created);
     }
 
-    public function destroy(Transaction $transaction)
+    public function destroy(Transaction $transaction): JsonResponse
     {
         if (! Gate::allows('delete-transaction', $transaction)) {
             abort (403);
@@ -40,6 +53,8 @@ class CashTransactionController extends Controller
 
         $response = $transaction->delete();
 
-        return response()->json($response);
+        return response()->json([
+            'data' => 'success'
+        ]);
     }
 }
