@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CashTransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/transactions', [CashTransactionController::class, 'index']);
+
+    Route::post('/transactions', [CashTransactionController::class, 'store']);
+
+    Route::delete('/transactions/{transaction}', [CashTransactionController::class, 'destroy']);
+});
+
+
