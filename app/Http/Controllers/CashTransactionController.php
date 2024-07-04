@@ -19,7 +19,7 @@ class CashTransactionController extends Controller
      */
     public function index(Request $request)
     {
-        $page_size = $request->query('page_size') ?? 6;
+        $page_size = $request->query('page_size');
         $transactions = Transaction::query()->paginate($page_size);
 
         return TransactionResource::collection($transactions);
@@ -42,7 +42,7 @@ class CashTransactionController extends Controller
 
         $created = Transaction::create($form_fields);
 
-        return TransactionResource::collection($created);
+        return new TransactionResource($created);
     }
 
     public function destroy(Transaction $transaction): JsonResponse
